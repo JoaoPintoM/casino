@@ -1,23 +1,52 @@
 import { bank } from './bank'
 
-const startAmountWin = 40
+const startAmountWin = 10
 const taxPercent = 80
-const chancePercent = 0.15
 let amountToWin = startAmountWin
+
+const baseCherryPrice = 5
+const baseMelonPrice = 30
+const baseBananaPrice = 50
+const baseDiamondPrice = 250
+
+const chancePercentCherry = 0.2
+const chancePercentMelon = 0.1
+const chancePercentBanana = 0.01
+const chancePercentDiamond = 0.001
 
 const play = (money) => {
   const net = tax(money)
   amountToWin += net
 
   const chance = Math.random()
-  if (chance < chancePercent) {
-    const winningAmount = amountToWin
-    amountToWin = startAmountWin
-    bank.sub(winningAmount)
-    return winningAmount
+
+  switch (true) {
+    case (chance < chancePercentDiamond):
+      return winingScenario('diamond', baseDiamondPrice)
+    case (chance < chancePercentBanana):
+      return winingScenario('banana', baseBananaPrice)
+    case (chance < chancePercentMelon):
+      return winingScenario('melon', baseMelonPrice)
+    case (chance < chancePercentCherry):
+      return winingScenario('cherry', baseCherryPrice)
+    default:
+      return false
   }
-  return false
 }
+
+const winingScenario = (type, priceItem) => {
+  const winningAmount = amountToWin + priceItem
+  amountToWin = startAmountWin
+  bank.sub(winningAmount)
+  return { type, gains: winningAmount }
+}
+
+const _items = {
+  cherry: amountToWin + baseCherryPrice,
+  melon: amountToWin + baseMelonPrice,
+  diamond: amountToWin + baseDiamondPrice
+}
+const items = () => _items
 
 const tax = (amount) => {
   const tax = (amount / 100) * taxPercent
@@ -25,4 +54,4 @@ const tax = (amount) => {
   return amount - tax
 }
 
-export const game = { play }
+export const game = { play, items }
